@@ -1,0 +1,7 @@
+Card face images: "52 playing cards pack" (black version) by MrEliptik
+(www.victormeunier.com), https://mreliptik.itch.io/playing-cards-packs-52-cards
+License: CC0 1.0 (public domain dedication); see LICENSE.txt.
+Changes: renamed, resized to 328x465, converted to 8-bit PNG, and recoloured
+(see tools/recolor_cards.py; originals-in-our-naming are in assets/cards_src).
+Suit mapping from the original names: Clovers=clubs, Tiles=diamonds,
+Hearts=hearts, Pikes=spades.

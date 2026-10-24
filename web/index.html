@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b150f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Perfect Pair">
+<title>Perfect Pair</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<style>
+  :root { --gold:#c9a24a; --dim:#968b46; --ink:#120a1a; --felt:#0b150f; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--felt); color:#e8e0cc; overflow:hidden;
+    font-family:"Times New Roman", Georgia, "Liberation Serif", serif;
+    -webkit-text-size-adjust:100%; overscroll-behavior:none; }
+  body { display:flex; flex-direction:column; height:100dvh;
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left); }
+  #bar { display:flex; flex-wrap:wrap; gap:6px; padding:6px 8px; background:#14101c; border-bottom:1px solid #3a3020; align-items:center; }
+  #bar button { font:inherit; font-size:16px; min-height:44px; padding:6px 14px; color:#e8e0cc;
+    background:#2a1d36; border:1px solid var(--gold); border-radius:8px; touch-action:manipulation; cursor:pointer; }
+  #bar button:active { background:#4a3260; }
+  #bar button.off { opacity:.4; }
+  #status { flex:1 1 100%; font-size:16px; color:var(--dim); min-height:1.3em; line-height:1.3; }
+  @media (min-width: 900px) { #status { flex:1 1 auto; } }
+  #stage { position:relative; flex:1 1 auto; min-height:0; }
+  #table { display:block; touch-action:none; user-select:none; -webkit-user-select:none; -webkit-touch-callout:none; }
+  #loading { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--dim); }
+  noscript { padding:20px; display:block; }
+</style>
+</head>
+<body>
+<div id="bar">
+  <button id="btnNew">New hand</button>
+  <button id="btnUndo">Undo</button>
+  <button id="btnHint">Hint</button>
+  <button id="btnMode">Mode: Normal</button>
+  <div id="status"></div>
+</div>
+<div id="stage">
+  <canvas id="table"></canvas>
+  <div id="loading">Loading...</div>
+</div>
+<noscript>Perfect Pair needs JavaScript to run.</noscript>
+<script src="glue.js"></script>
+<script src="tiepairweb.js"></script>
+<script>rtl.run();</script>
+</body>
+</html>

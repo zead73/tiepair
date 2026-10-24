@@ -1,0 +1,124 @@
+object frmMain: TfrmMain
+  Left = 300
+  Height = 620
+  Top = 200
+  Width = 1520
+  Caption = 'Tiepair'
+  ClientHeight = 620
+  ClientWidth = 1520
+  OnCreate = FormCreate
+  KeyPreview = True
+  OnDestroy = FormDestroy
+  OnKeyDown = FormKeyDown
+  OnKeyPress = FormKeyPress
+  OnResize = FormResize
+  Position = poScreenCenter
+  object pnlTop: TPanel
+    Left = 0
+    Height = 36
+    Top = 0
+    Width = 1520
+    Align = alTop
+    BevelOuter = bvNone
+    ClientHeight = 36
+    ClientWidth = 1520
+    TabOrder = 0
+    object btnNew: TButton
+      Left = 8
+      Height = 26
+      Top = 5
+      Width = 90
+      Caption = 'New Game'
+      OnClick = btnNewClick
+      TabOrder = 0
+    end
+    object btnUndo: TButton
+      Left = 104
+      Height = 26
+      Top = 5
+      Width = 80
+      Caption = 'Undo (0)'
+      OnClick = btnUndoClick
+      TabOrder = 1
+    end
+    object btnStore: TButton
+      Left = 188
+      Height = 26
+      Top = 5
+      Width = 130
+      Caption = 'Buy undos'
+      OnClick = btnStoreClick
+      TabOrder = 2
+    end
+    object btnHint: TButton
+      Left = 332
+      Height = 26
+      Top = 5
+      Width = 110
+      Caption = 'Show move (0)'
+      OnClick = btnHintClick
+      TabOrder = 3
+    end
+    object btnCards: TButton
+      Left = 446
+      Height = 26
+      Top = 5
+      Width = 130
+      Caption = 'Buy hints'
+      OnClick = btnCardsClick
+      TabOrder = 4
+    end
+    object btnMenu: TButton
+      Left = 590
+      Height = 26
+      Top = 5
+      Width = 100
+      Caption = 'Menu'
+      OnClick = btnMenuClick
+      TabOrder = 5
+    end
+    object btnStartOver: TButton
+      Left = 700
+      Height = 26
+      Top = 5
+      Width = 88
+      Caption = 'Start over'
+      OnClick = btnStartOverClick
+      TabOrder = 8
+    end
+    object btnRecords: TButton
+      Left = 796
+      Height = 26
+      Top = 5
+      Width = 80
+      Caption = 'Records'
+      OnClick = btnRecordsClick
+      TabOrder = 9
+    end
+    object btnMode: TButton
+      Left = 882
+      Height = 26
+      Top = 5
+      Width = 120
+      Caption = 'Mode: Normal'
+      OnClick = btnModeClick
+      TabOrder = 10
+    end
+    object lblStatus: TLabel
+      Left = 1016
+      Height = 17
+      Top = 9
+      Width = 40
+      Caption = 'Status'
+    end
+  end
+  object pbTable: TPaintBox
+    Left = 0
+    Height = 584
+    Top = 36
+    Width = 1520
+    Align = alClient
+    OnMouseDown = pbTableMouseDown
+    OnPaint = pbTablePaint
+  end
+end

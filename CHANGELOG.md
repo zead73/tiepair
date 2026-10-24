@@ -3,6 +3,26 @@
 What changed in each version. The newest is on top. The version number lives in
 `src/version.pas` and is changed with `tools/set-version.sh`.
 
+## 0.5.0 - 2026-10-24
+
+The desktop versions: Tiepair now runs as a program on Linux (Qt5) and Windows (64-bit), built
+with Lazarus like Tiecards. It is the same game as the web version, drawn by the same
+controller (`src/gamecontroller.pas`): the start menu, Campaign and Free Play, the Store, special
+cards, relics, trophies, Style, records, save slots and the rules, with the toolbar's Mode button
+for Normal and Easy in Free Play.
+
+- `build-linux.sh` builds `build/tiepair`; `build-windows.sh` cross-compiles `build/tiepair.exe`
+  (see the README). Saves live in the user's config folder under the name `tiepair`.
+- A Tiepair icon (a Queen and an Ace) for the window and the exe.
+
+## 0.4.1 - 2026-10-24
+
+- Count Alaric now allows 2 turn-overs of the stock (it was 1). Measured with perfect play it
+  barely changes how often his hands can be won (his hunger is what makes them hard), see the
+  README.
+- The Rules page now says that a Wild card or a Wood Stake takes a bitten card away for free
+  (no coins lost, the streak is not ended); only a card taken in an ordinary move is a bite.
+
 ## 0.4.0 - 2026-10-24
 
 The campaign. The vampires who lost Tiecards have rebuilt and cursed a new set of cards, this

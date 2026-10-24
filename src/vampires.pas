@@ -41,7 +41,7 @@ const
     cards are the answers: Wood Stake or Wild card for a chained card, Wood Stake
     for a bitten one, Extra turn against his hunger. }
   VampireEasy: array[0..VampireCount - 1] of Boolean = (True, False, False);
-  VampireRecycles: array[0..VampireCount - 1] of Integer = (3, 2, 1);
+  VampireRecycles: array[0..VampireCount - 1] of Integer = (3, 2, 2);
   VampireHazard: array[0..VampireCount - 1] of THazard = (hzBitten, hzChained, hzHunger);
   { What the Store charges while you face each vampire, as a percentage of the
     list prices: the early levels are cheaper. Free Play, and the campaign once

@@ -179,7 +179,7 @@ begin
       [VampireLabel(1, AStory), StockText(1), ChainedCount]) + RulesBreak +
     Format('%s: %s. Hunger: after every %dth draw he eats the bottom card of the stock. An Extra turn gives you back some of what he costs you.',
       [VampireLabel(2, AStory), StockText(2), FeedEvery]) + RulesBreak +
-    'Special cards are the answer to the tricks: Wild card or Wood Stake for chains, Wood Stake for a bite, Seer''s eye to plan ahead, Extra turn for hunger.';
+    'Special cards are the answer to the tricks: Wild card or Wood Stake for chains and for bites (a bitten card taken away that way costs nothing and does not end your streak), Seer''s eye to plan ahead, Extra turn for hunger.';
 end;
 
 function BodyCross(AStory: TStory): string;

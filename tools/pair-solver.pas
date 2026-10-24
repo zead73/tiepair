@@ -90,9 +90,9 @@ const
     (Name: 'plain, Normal, 1 turn';       Easy: False; Recycles: 1; Hazard: hzNone;    Spoon: False; Pick: False),
     (Name: 'Lucien (Easy, 3, bites)';     Easy: True;  Recycles: 3; Hazard: hzBitten;  Spoon: False; Pick: False),
     (Name: 'Carmilla (Normal, 2, chains)'; Easy: False; Recycles: 2; Hazard: hzChained; Spoon: False; Pick: False),
-    (Name: 'Alaric (Normal, 1, hunger)';  Easy: False; Recycles: 1; Hazard: hzHunger;  Spoon: False; Pick: False),
+    (Name: 'Alaric (Normal, 2, hunger)';  Easy: False; Recycles: 2; Hazard: hzHunger;  Spoon: False; Pick: False),
     (Name: 'Carmilla + Pick';             Easy: False; Recycles: 2; Hazard: hzChained; Spoon: False; Pick: True),
-    (Name: 'Alaric + Spoon';              Easy: False; Recycles: 1; Hazard: hzHunger;  Spoon: True;  Pick: False),
+    (Name: 'Alaric + Spoon';              Easy: False; Recycles: 2; Hazard: hzHunger;  Spoon: True;  Pick: False),
     (Name: 'Carmilla, Easy rule';         Easy: True;  Recycles: 2; Hazard: hzChained; Spoon: False; Pick: False),
     (Name: 'Alaric, Easy rule';           Easy: True;  Recycles: 1; Hazard: hzHunger;  Spoon: False; Pick: False),
     (Name: 'Alaric, Easy rule, +1 turn';  Easy: True;  Recycles: 2; Hazard: hzHunger;  Spoon: False; Pick: False));

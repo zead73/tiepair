@@ -2,8 +2,8 @@
 
 A gothic Pyramid solitaire, in the style of [Tiecards](../tiecards): the same card art and the same
 vampires, now cursing a new set of cards. Free Play, and a Campaign against three vampires with the
-Store, special cards, relics, trophies, Style, records and save slots. Work in progress: it is playable
-in the browser only (the version is in `src/version.pas`).
+Store, special cards, relics, trophies, Style, records and save slots. Playable
+as a program for Linux and Windows and in the browser (the version is in `src/version.pas`).
 
 ## How it plays
 
@@ -33,7 +33,7 @@ Pyramid. Win five hands to kill each vampire. The story text is a draft in `asse
 | --- | --- | --- |
 | Lucien Vale | Easy rule, 3 turn-overs | **Bitten** cards: taking one costs coins and ends the streak |
 | Lady Carmilla Nox | Normal, 2 turn-overs | **Chained** cards: locked while a card beside them in the row is still there |
-| Count Alaric Dravenmoor | Normal, 1 turn-over | **Hunger**: every 4th draw eats the bottom card of the stock |
+| Count Alaric Dravenmoor | Normal, 2 turn-overs | **Hunger**: every 4th draw eats the bottom card of the stock |
 
 Fenwick Grimm's Store sells six special cards: Extra turn (one more turn-over), Easy rule (for the
 hand), Dawn (both), Wild card (take away any two cards in play as a pair), Seer's eye (shows the next
@@ -46,8 +46,7 @@ Two tools measure it. `tools/pair-solver.pas` plays the same shuffled hands with
 careful person with no foresight) and a "skilled" one (the best of many tries, knowing the stock's
 order: a lower bound on perfect play). `tools/pair-perfect.pas` searches for a win with every card
 known, giving up on some hands ("unknown"), so the truth lies between "winnable" and
-"winnable + unknown". Run on 2026-10-24, perfect play, 60 deals (incomplete rows were still running
-when this was written; re-run it for the full table):
+"winnable + unknown". Run on 2026-10-24, perfect play, 60 deals:
 
 | Hands | Winnable | Not | Unknown |
 | --- | --- | --- | --- |
@@ -56,11 +55,20 @@ when this was written; re-run it for the full table):
 | Normal, 1 turn-over | 43% | 8% | 48% |
 | Lucien (Easy, 3, bites) | 80% | 0% | 20% |
 | Carmilla (Normal, 2, chains) | 37% | 8% | 55% |
+| Carmilla with the Pick | 42% | 7% | 52% |
+| Carmilla, Easy rule | 60% | 5% | 35% |
+| Alaric (Normal, 2, hunger) | 8% | 85% | 7% |
+| Alaric with the Spoon | 45% | 8% | 47% |
+| Alaric, Easy rule | 28% | 67% | 5% |
+| Alaric, Easy rule, +1 turn-over | 30% | 62% | 8% |
 
-From a quicker run (plain player / skilled, 100 deals): Alaric's hunger hands (Normal, 1 turn-over)
+From a quicker run (plain player / skilled, 100 deals): Alaric's hunger hands (Normal, 1 turn-over, his first setting)
 were won by about 3% / 6% of players, 11% / 20% with the Iron Spoon, and Carmilla's about 15% / 31%
-(25% / 37% with the Pick). Tiecards' King is far kinder (about 48% with perfect play), so the ramp is
-a starting point and the user's call.
+(25% / 37% with the Pick). Tiecards' King is far kinder (about 48% with perfect play). Alaric was first set to 1 turn-over and
+is now at 2, but that barely moves it (60 deals is noisy, about 6 points either way): the hunger is
+the killer, since every extra draw feeds him more of the stock. His hands are almost always lost
+without the Spoon or the Easy rule, so the ramp is a starting point and the
+user's call.
 
 ## Building and testing
 
@@ -71,16 +79,24 @@ The rules and the game flow have no window code, so the tests are plain console 
     (cd build && ./testpyramid)
 
 (one program per area in `tests/`: the rules, the session, the duel, the hand file, the controller and so on). `tools/check-pas2js.sh` compiles everything with pas2js and
-runs all the tests under Node; `web/build.sh` builds the web version into `web/dist/` (it needs pas2js
-3.x as described in the Tiecards README; try it with `cd web/dist && python3 -m http.server 8767`).
-Saved hands live under the name `tiepair` (a config folder on the desktop, a key prefix in the
-browser), separate from Tiecards.
+runs all the tests under Node.
+
+**Desktop (Lazarus).** `./build-linux.sh` builds `build/tiepair` (Qt5); `./build-windows.sh`
+cross-compiles `build/tiepair.exe` (64-bit; it needs Lazarus and the stock Arch `fpc`, and makes a private
+writable copy of Lazarus in `~/.local/share/tiecards-cross` on its first run, shared with Tiecards).
+Both run `make-resources.sh` first, which packs the pictures and the story into `app/cards.res`.
+Saved games live in the user's config folder under `tiepair` (`~/.config/tiepair`, `%LOCALAPPDATA%\tiepair`).
+
+**Web.** `web/build.sh` builds the browser version into `web/dist/` (it needs pas2js 3.x as described in the
+Tiecards README; try it with `cd web/dist && python3 -m http.server 8767`). Saved hands there live under a
+`tiepair` key prefix, separate from Tiecards.
 
 ## Layout
 
 | Folder | What is in it |
 | --- | --- |
 | `src/` | The rules (`pyramid.pas`), the session, duel and campaign layers, the saved hand (`handfile.pas`) and the flow shared by the front ends (`gamecontroller.pas`); most of the rest is shared with Tiecards |
+| `app/` | The desktop front end (Lazarus): `MainForm.pas` and the drawing units |
 | `web/` | The browser front end: `web/src/tiepairweb.pas`, `index.html`, `glue.js` |
 | `tests/` | Console test programs |
 | `tools/` | The win-rate solver, the pas2js check, the version scripts |

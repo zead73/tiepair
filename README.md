@@ -1,8 +1,7 @@
-# Perfect Pair
+# Tiepair
 
 A gothic Pyramid solitaire, in the style of [Tiecards](../tiecards): the same card art, the same
-card back and the same house on the hill. Work in progress: this is version 0.2.0, the first
-playable version, in the browser only.
+card back and the same house on the hill. Work in progress: so far it is playable in the browser only (the version is in `src/version.pas`).
 
 ## How it plays
 

@@ -1,6 +1,6 @@
 unit Pyramid;
 
-{ The rules of Pyramid solitaire, as played in Perfect Pair. No window code, so
+{ The rules of Pyramid solitaire, as played in Tiepair. No window code, so
   everything here can be tested without a screen.
 
   Twenty-eight cards are dealt face up in a pyramid of seven rows, and the other
@@ -18,7 +18,7 @@ unit Pyramid;
 
   In EASY mode (UnderPairs) a card that is covered by exactly ONE card, when that card
   is free, is "under" it, and the two can be taken away together if they add up to 13
-  (a Queen sitting on an Ace, say). This is Perfect Pair's own rule. In NORMAL mode
+  (a Queen sitting on an Ace, say). This is Tiepair's own rule. In NORMAL mode
   (the default) a card has to be uncovered first, which is how Pyramid is usually
   played. The mode belongs to a hand: it is saved with it.
 

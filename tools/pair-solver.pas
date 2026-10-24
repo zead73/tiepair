@@ -1,6 +1,6 @@
 program PairSolver;
 
-{ Measures how often a hand of Perfect Pair can be won, for different numbers of
+{ Measures how often a hand of Tiepair can be won, for different numbers of
   turn-overs of the stock (MaxRecycles). Run it like this:
 
     fpc -Mobjfpc -O2 -Fusrc -FUbuild/lib/tools -FEbuild tools/pair-solver.pas

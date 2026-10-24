@@ -1,6 +1,6 @@
 unit PairGame;
 
-{ The flow of Perfect Pair that does not depend on a window: where everything is drawn,
+{ The flow of Tiepair that does not depend on a window: where everything is drawn,
   what a tap does, the one-line messages, the saved hand. The desktop program and the
   web page both draw what this says and pass taps back to it, so the two cannot
   disagree about the game. No window code. }

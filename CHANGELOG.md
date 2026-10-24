@@ -3,6 +3,11 @@
 What changed in each version. The newest is on top. The version number lives in
 `src/version.pas` and is changed with `tools/set-version.sh`.
 
+## 0.3.1 - 2026-10-24
+
+- The game is called Tiepair (it was called Perfect Pair while it was being made): the page
+  title, the panel, the Home Screen name, the README and the comments.
+
 ## 0.3.0 - 2026-10-24
 
 - Two modes. **Normal** is plain Pyramid: a card has to be uncovered before it can go. **Easy**
@@ -16,7 +21,7 @@ What changed in each version. The newest is on top. The version number lives in
 
 - A card that only one card still covers can be taken away together with that card, if
   they add up to 13 (a Queen sitting on an Ace): tap one and then the other. A card that
-  can be picked this way is no longer dimmed. This is Perfect Pair's own rule (the
+  can be picked this way is no longer dimmed. This is Tiepair's own rule (the
   `UnderPairs` setting in `src/pyramid.pas`); it makes hands a good deal easier to win,
   see the README for the numbers.
 

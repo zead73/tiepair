@@ -1,4 +1,4 @@
-# Perfect Pair: to do
+# Tiepair: to do
 
 ## Done (0.1.0, 2026-10-24)
 - [x] Pyramid rules, tests, the win-rate solver, the saved hand, the web front end, version tracking.

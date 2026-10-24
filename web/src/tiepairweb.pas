@@ -1,6 +1,6 @@
 program tiepairweb;
 
-{ The web version of Perfect Pair: the same game (PairGame and everything under it)
+{ The web version of Tiepair: the same game (PairGame and everything under it)
   running in a browser. This file loads the pictures, draws the table on a canvas,
   turns taps and button presses into controller calls, and repaints when the
   controller says something changed. Saved data goes to the browser's local
@@ -394,7 +394,7 @@ begin
   Y := 26;
   SetFont(30 * K, True, True);
   FillColor(232, 224, 204);
-  Text('Perfect Pair', P.Left + ((P.Right - P.Left) - TextW('Perfect Pair')) / 2, Y);
+  Text('Tiepair', P.Left + ((P.Right - P.Left) - TextW('Tiepair')) / 2, Y);
   Y := Y + 40 * K;
   SetFont(14 * K, False, True);
   FillColor(201, 162, 74);

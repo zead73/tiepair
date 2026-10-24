@@ -1,6 +1,6 @@
 unit Version;
 
-{ The version of Perfect Pair: the one place it is written in the program. Change it
+{ The version of Tiepair: the one place it is written in the program. Change it
   with tools/set-version.sh; tools/check-version.sh (run by the build script) fails if
   CHANGELOG.md does not start with this version. Numbers are MAJOR.MINOR.PATCH: a patch
   for fixes, a minor for anything that changes how the game plays or what it offers,
@@ -11,7 +11,7 @@ unit Version;
 interface
 
 const
-  AppVersion = '0.3.0';
+  AppVersion = '0.3.1';
 
 implementation
 

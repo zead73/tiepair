@@ -1,6 +1,6 @@
 {
-  "name": "Perfect Pair",
-  "short_name": "Perfect Pair",
+  "name": "Tiepair",
+  "short_name": "Tiepair",
   "description": "A gothic Pyramid solitaire: take away Kings and pairs that add up to 13.",
   "start_url": "./",
   "scope": "./",

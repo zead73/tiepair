@@ -1,10 +1,10 @@
 program PairSolver;
 
-{ Measures how often a hand of Tiepair can be won, for different numbers of
-  turn-overs of the stock (MaxRecycles). Run it like this:
+{ Measures how often a hand of Tiepair can be won, for each vampire's hands (the Easy rule, the turn-overs of the stock,
+  his trick) with and without the Pick and the Spoon. Run it like this:
 
     fpc -Mobjfpc -O2 -Fusrc -FUbuild/lib/tools -FEbuild tools/pair-solver.pas
-    build/pair-solver [deals] [under]     (under = 0: Normal mode; anything else or nothing: Easy mode)
+    build/pair-solver [deals] [tries]
 
   Two kinds of player are measured on the same deals:
     plain   what a careful person does with no foresight: take a King, else a
@@ -19,7 +19,7 @@ program PairSolver;
 uses SysUtils, Cards, Pyramid;
 
 const
-  Tries = 150;
+  DefaultTries = 150;
   Chaos = 12;                    { one move in this many is a random legal one }
 
 { One step of the plain player (or a random move now and then). False: nothing to do. }
@@ -71,47 +71,70 @@ begin
   Result := G.IsWon;
 end;
 
+type
+  TConfig = record
+    Name: string;
+    Easy: Boolean;
+    Recycles: Integer;
+    Hazard: THazard;
+    Spoon, Pick: Boolean;
+  end;
+
+const
+  { the campaign as it stands in vampires.pas, then the same hands with the Pick and the
+    Spoon equipped, then a few what-ifs }
+  Configs: array[0..11] of TConfig = (
+    (Name: 'plain, Easy, 3 turns';        Easy: True;  Recycles: 3; Hazard: hzNone;    Spoon: False; Pick: False),
+    (Name: 'plain, Normal, 3 turns';      Easy: False; Recycles: 3; Hazard: hzNone;    Spoon: False; Pick: False),
+    (Name: 'plain, Normal, 2 turns';      Easy: False; Recycles: 2; Hazard: hzNone;    Spoon: False; Pick: False),
+    (Name: 'plain, Normal, 1 turn';       Easy: False; Recycles: 1; Hazard: hzNone;    Spoon: False; Pick: False),
+    (Name: 'Lucien (Easy, 3, bites)';     Easy: True;  Recycles: 3; Hazard: hzBitten;  Spoon: False; Pick: False),
+    (Name: 'Carmilla (Normal, 2, chains)'; Easy: False; Recycles: 2; Hazard: hzChained; Spoon: False; Pick: False),
+    (Name: 'Alaric (Normal, 1, hunger)';  Easy: False; Recycles: 1; Hazard: hzHunger;  Spoon: False; Pick: False),
+    (Name: 'Carmilla + Pick';             Easy: False; Recycles: 2; Hazard: hzChained; Spoon: False; Pick: True),
+    (Name: 'Alaric + Spoon';              Easy: False; Recycles: 1; Hazard: hzHunger;  Spoon: True;  Pick: False),
+    (Name: 'Carmilla, Easy rule';         Easy: True;  Recycles: 2; Hazard: hzChained; Spoon: False; Pick: False),
+    (Name: 'Alaric, Easy rule';           Easy: True;  Recycles: 1; Hazard: hzHunger;  Spoon: False; Pick: False),
+    (Name: 'Alaric, Easy rule, +1 turn';  Easy: True;  Recycles: 2; Hazard: hzHunger;  Spoon: False; Pick: False));
+
 var
-  Deals, Plain, Skilled, D, T, Recycles: Integer;
+  Tries, Deals, Plain, Skilled, D, T, C: Integer;
   G: TPyramidGame;
-  Decks: array of TPairHand;
   Start: TPairHand;
   Won: Boolean;
 begin
   Randomize;
   Deals := 600;
+  Tries := DefaultTries;
+  if ParamCount >= 2 then Tries := StrToIntDef(ParamStr(2), Tries);
   if ParamCount >= 1 then Deals := StrToIntDef(ParamStr(1), Deals);
   G := TPyramidGame.Create;
-  G.UnderPairs := not ((ParamCount >= 2) and (ParamStr(2) = '0'));
-  SetLength(Decks, Deals);
-  for D := 0 to Deals - 1 do
-  begin
-    G.NewShuffled;
-    G.GetState(Decks[D]);
-  end;
-  if G.UnderPairs then Write('Easy mode') else Write('Normal mode');
-  WriteLn(': ', Deals, ' deals, "skilled" = best of ', Tries, ' tries');
-  WriteLn('turn-overs   plain    skilled');
-  for Recycles in [0, 1, 2, 3, 99] do
+  WriteLn(Deals, ' deals each; "skilled" = best of ', Tries, ' tries (a lower bound on perfect play)');
+  WriteLn('hand                              plain    skilled');
+  for C := 0 to High(Configs) do
   begin
     Plain := 0;
     Skilled := 0;
     for D := 0 to Deals - 1 do
     begin
-      Start := Decks[D];
-      Start.MaxRecycles := Recycles;
+      G.NewShuffled;
+      G.UnderPairs := Configs[C].Easy;
+      G.MaxRecycles := Configs[C].Recycles;
+      G.SetHazard(Configs[C].Hazard);
+      G.GetState(Start);
       G.SetState(Start);
+      G.SetRelicRules(Configs[C].Spoon, Configs[C].Pick);
       if Play(G, False) then Inc(Plain);
       Won := False;
       for T := 1 to Tries do
       begin
         G.SetState(Start);
+        G.SetRelicRules(Configs[C].Spoon, Configs[C].Pick);
         if Play(G, True) then begin Won := True; Break; end;
       end;
       if Won then Inc(Skilled);
     end;
-    if Recycles = 99 then Write('unlimited   ') else Write(Recycles:6, '       ');
-    WriteLn(100 * Plain / Deals:6:1, '%  ', 100 * Skilled / Deals:6:1, '%');
+    WriteLn(Configs[C].Name:32, '  ', 100 * Plain / Deals:6:1, '%  ', 100 * Skilled / Deals:6:1, '%');
   end;
   G.Free;
 end.

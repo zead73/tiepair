@@ -1,7 +1,9 @@
 # Tiepair
 
-A gothic Pyramid solitaire, in the style of [Tiecards](../tiecards): the same card art, the same
-card back and the same house on the hill. Work in progress: so far it is playable in the browser only (the version is in `src/version.pas`).
+A gothic Pyramid solitaire, in the style of [Tiecards](../tiecards): the same card art and the same
+vampires, now cursing a new set of cards. Free Play, and a Campaign against three vampires with the
+Store, special cards, relics, trophies, Style, records and save slots. Work in progress: it is playable
+in the browser only (the version is in `src/version.pas`).
 
 ## How it plays
 
@@ -22,34 +24,43 @@ paired with a free pyramid card. When the stock runs out, tap its place to turn 
 
 The rule choices that other books make differently are named at the top of `src/pyramid.pas`.
 
+## The campaign
+
+The vampires who lost Tiecards got together, rebuilt and cursed another set of cards, this time for
+Pyramid. Win five hands to kill each vampire. The story text is a draft in `assets/story/story.ini`.
+
+| Vampire | Rules | Trick |
+| --- | --- | --- |
+| Lucien Vale | Easy rule, 3 turn-overs | **Bitten** cards: taking one costs coins and ends the streak |
+| Lady Carmilla Nox | Normal, 2 turn-overs | **Chained** cards: locked while a card beside them in the row is still there |
+| Count Alaric Dravenmoor | Normal, 1 turn-over | **Hunger**: every 4th draw eats the bottom card of the stock |
+
+Fenwick Grimm's Store sells six special cards: Extra turn (one more turn-over), Easy rule (for the
+hand), Dawn (both), Wild card (take away any two cards in play as a pair), Seer's eye (shows the next
+three stock cards) and the Wood Stake (destroys a free card). Extra turn and Easy rule go on sale
+once you reach Carmilla. The numbers (ramp, coins) live in `src/vampires.pas` and `src/specials.pas`.
+
 ## How hard is it?
 
-`tools/pair-solver.pas` plays the same shuffled hands under different numbers of turn-overs of the
-stock. "Plain" is a careful player with no foresight; "skilled" is the best of 150 tries on each hand
-(knowing the stock's order), so it is a lower bound on what perfect play could win.
+Two tools measure it. `tools/pair-solver.pas` plays the same shuffled hands with a plain player (a
+careful person with no foresight) and a "skilled" one (the best of many tries, knowing the stock's
+order: a lower bound on perfect play). `tools/pair-perfect.pas` searches for a win with every card
+known, giving up on some hands ("unknown"), so the truth lies between "winnable" and
+"winnable + unknown". Run on 2026-10-24, perfect play, 60 deals (incomplete rows were still running
+when this was written; re-run it for the full table):
 
-Easy mode (400 hands):
+| Hands | Winnable | Not | Unknown |
+| --- | --- | --- | --- |
+| Normal, 3 turn-overs | 62% | 2% | 37% |
+| Normal, 2 turn-overs | 58% | 2% | 40% |
+| Normal, 1 turn-over | 43% | 8% | 48% |
+| Lucien (Easy, 3, bites) | 80% | 0% | 20% |
+| Carmilla (Normal, 2, chains) | 37% | 8% | 55% |
 
-| Turn-overs | Plain | Skilled |
-| --- | --- | --- |
-| 0 | 1.3% | 3.3% |
-| 1 | 27.8% | 40.5% |
-| 2 | 55.3% | 70.3% |
-| 3 | 63.3% | 75.5% |
-| unlimited | 63.3% | 74.8% |
-
-Normal mode (ordinary Pyramid, 600 hands):
-
-| Turn-overs | Plain | Skilled |
-| --- | --- | --- |
-| 0 | 0.3% | 0.8% |
-| 1 | 10.2% | 16.8% |
-| 2 | 30.3% | 42.8% |
-| 3 | 36.5% | 48.0% |
-| unlimited | 37.5% | 49.3% |
-
-The number of turn-overs is `DefaultRecycles` in `src/pyramid.pas` (currently 2 in both modes): a one-line
-change. In Easy mode, 1 turn-over gives about what 2 gives in Normal.
+From a quicker run (plain player / skilled, 100 deals): Alaric's hunger hands (Normal, 1 turn-over)
+were won by about 3% / 6% of players, 11% / 20% with the Iron Spoon, and Carmilla's about 15% / 31%
+(25% / 37% with the Pick). Tiecards' King is far kinder (about 48% with perfect play), so the ramp is
+a starting point and the user's call.
 
 ## Building and testing
 
@@ -59,7 +70,7 @@ The rules and the game flow have no window code, so the tests are plain console 
     fpc -Mobjfpc -Fusrc -FUbuild/lib/tests -FEbuild tests/testpyramid.pas
     (cd build && ./testpyramid)
 
-(also `testpairhand` and `testpairflow`). `tools/check-pas2js.sh` compiles everything with pas2js and
+(one program per area in `tests/`: the rules, the session, the duel, the hand file, the controller and so on). `tools/check-pas2js.sh` compiles everything with pas2js and
 runs all the tests under Node; `web/build.sh` builds the web version into `web/dist/` (it needs pas2js
 3.x as described in the Tiecards README; try it with `cd web/dist && python3 -m http.server 8767`).
 Saved hands live under the name `tiepair` (a config folder on the desktop, a key prefix in the
@@ -69,11 +80,11 @@ browser), separate from Tiecards.
 
 | Folder | What is in it |
 | --- | --- |
-| `src/` | The rules (`pyramid.pas`), the saved hand (`pairhand.pas`), the flow shared by the front ends (`pairgame.pas`); `cards.pas`, `textini.pas` and `storage.pas` are copied from Tiecards |
+| `src/` | The rules (`pyramid.pas`), the session, duel and campaign layers, the saved hand (`handfile.pas`) and the flow shared by the front ends (`gamecontroller.pas`); most of the rest is shared with Tiecards |
 | `web/` | The browser front end: `web/src/tiepairweb.pas`, `index.html`, `glue.js` |
 | `tests/` | Console test programs |
 | `tools/` | The win-rate solver, the pas2js check, the version scripts |
-| `assets/` | The card faces and the house, copied from Tiecards |
+| `assets/` | The card faces and vampires (from Tiecards), the new house, special cards and win screen, and the story |
 
 ## Versions
 

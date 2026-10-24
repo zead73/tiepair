@@ -380,6 +380,126 @@ begin
   end;
 end;
 
+{ The vampires' tricks and the relics that answer them. }
+procedure TestChained;
+var
+  G: TPyramidGame;
+  Tab: array[0..27] of Integer;
+  Stock: array[0..23] of Integer;
+  I, Chains: Integer;
+begin
+  G := TPyramidGame.Create;
+  try
+    AllSame(Tab, Stock, 13, 7);
+    G.Deal(BuildDeck(Tab, Stock));
+    G.SetHazard(hzChained);
+    Chains := 0;
+    for I := 0 to PyramidSize - 1 do
+      if G.Mark(I) = MarkChained then
+      begin
+        Inc(Chains);
+        Check(RowOf(I) >= 1, 'a chain is never on the apex');
+        Check((G.NeighborLeft(I) < 0) or (G.Mark(G.NeighborLeft(I)) <> MarkChained), 'and never beside another chain');
+      end;
+    Check(Chains = ChainedCount, 'the right number of chains');
+    { a chained King in the bottom row, its neighbours still there }
+    for I := 0 to PyramidSize - 1 do G.SetMark(I, MarkNone);
+    G.SetMark(24, MarkChained);
+    Check(G.IsLockedStrict(24) and G.IsLocked(24) and not G.CanRemove(24, PosNone), 'locked while a neighbour is there');
+    Check(G.CanRemove(23, PosNone), 'its neighbour is free');
+    Check(not G.CanSelect(24), 'a locked card cannot be picked');
+    G.Remove(23, PosNone);
+    Check(G.IsLocked(24), 'one neighbour gone is not enough');
+    G.Remove(25, PosNone);
+    Check(not G.IsLocked(24) and G.CanRemove(24, PosNone), 'both gone: free');
+    { the Pick: one break a hand }
+    G.Deal(BuildDeck(Tab, Stock));
+    G.SetHazard(hzChained);
+    for I := 0 to PyramidSize - 1 do G.SetMark(I, MarkNone);
+    G.SetMark(24, MarkChained);
+    G.SetMark(22, MarkChained);
+    G.SetRelicRules(False, True);
+    Check(G.BreakAvailable and not G.IsLocked(24) and G.CanRemove(24, PosNone), 'with the Pick it can go');
+    Check(G.Remove(24, PosNone) and G.BreakUsed and not G.BreakAvailable, 'the break is spent');
+    Check(G.IsLocked(22) and not G.CanRemove(22, PosNone), 'a second chained card is locked');
+    Check(G.Undo and not G.BreakUsed and G.BreakAvailable, 'undo gives the break back');
+    G.SetRelicRules(False, False);
+    Check(G.IsLocked(24), 'the Pick taken out: locked again');
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TestBitten;
+var
+  G: TPyramidGame;
+  Tab: array[0..27] of Integer;
+  Stock: array[0..23] of Integer;
+  I, Bites: Integer;
+  M: TPairMove;
+begin
+  G := TPyramidGame.Create;
+  try
+    AllSame(Tab, Stock, 13, 7);
+    G.Deal(BuildDeck(Tab, Stock));
+    G.SetHazard(hzBitten);
+    Bites := 0;
+    for I := 0 to PyramidSize - 1 do
+      if G.Mark(I) = MarkBitten then Inc(Bites);
+    Check(Bites = BittenCount, 'the right number of bitten cards');
+    for I := 0 to PyramidSize - 1 do G.SetMark(I, MarkNone);
+    G.SetMark(27, MarkBitten);
+    G.Remove(26, PosNone);
+    Check(G.Streak = 1, 'an ordinary move builds the streak');
+    G.Remove(27, PosNone);
+    Check((G.Streak = 0) and (G.LastMoveBites = 1) and G.LastMove(M) and (M.Bites = 1), 'a bite ends it');
+    Check(G.Undo and (G.Streak = 1), 'undo brings the streak back');
+    Check(G.BestStreak >= 1, 'and the best stays');
+  finally
+    G.Free;
+  end;
+end;
+
+procedure TestHunger;
+var
+  G: TPyramidGame;
+  Tab: array[0..27] of Integer;
+  Stock: array[0..23] of Integer;
+  I, N: Integer;
+  Bottom: TCard;
+begin
+  G := TPyramidGame.Create;
+  try
+    AllSame(Tab, Stock, 12, 7);
+    for I := 0 to 23 do Stock[I] := 1 + I mod 6;          { so that the bottom card of the stock is known }
+    G.Deal(BuildDeck(Tab, Stock));
+    G.SetHazard(hzHunger);
+    Bottom := G.StockCard(StockStart - 1);
+    for N := 1 to FeedEvery - 1 do G.Draw;
+    Check(not G.LastMoveAte, 'three draws: nothing eaten');
+    G.Draw;
+    Check(G.LastMoveAte and (G.StockCount = StockStart - FeedEvery - 1), 'the fourth draw: he eats the bottom card');
+    for N := 1 to FeedEvery do G.Draw;
+    Check(G.LastMoveAte, 'and again after the eighth');
+    Check(G.Undo and not G.LastMoveAte, 'undo takes the draw back');
+    while G.CanUndo do G.Undo;
+    Check((G.StockCount = StockStart) and (G.StockCard(StockStart - 1).Rank = Bottom.Rank), 'all the way back: every card is home');
+    { the Spoon: only the first feeding }
+    G.SetRelicRules(True, False);
+    for N := 1 to 3 * FeedEvery do G.Draw;
+    Check(G.StockCount = StockStart - 3 * FeedEvery - 1, 'with the Spoon he feeds once in all');
+    { a Spoon put on late: he fed at the fourth draw, and not again }
+    while G.CanUndo do G.Undo;
+    G.SetRelicRules(False, False);
+    for N := 1 to FeedEvery do G.Draw;
+    G.SetRelicRules(True, False);
+    for N := 1 to FeedEvery do G.Draw;
+    Check(G.StockCount = StockStart - 2 * FeedEvery - 1, 'put on after the first feeding, it stops the second');
+  finally
+    G.Free;
+  end;
+end;
+
 procedure TestFindRemoval;
 var
   G: TPyramidGame;
@@ -478,15 +598,18 @@ begin
         if not SameHand(Mid, Back) then Check(False, 'a saved hand reloads exactly');
       end;
       if G.IsWon then Inc(Wins);
-      while G.CanUndo do
-        if not G.Undo then
-        begin
-          Check(False, 'undo must always work');
-          Break;
-        end;
-      G.GetState(Mid);
-      Check((Mid.Recycled = 0) and (Length(Mid.Stock) = StockStart) and (Length(Mid.Waste) = 0) and (G.CardsLeft = PyramidSize),
-        'undone all the way: the deal again');
+      if not G.IsWon then                    { a won hand cannot be undone }
+      begin
+        while G.CanUndo do
+          if not G.Undo then
+          begin
+            Check(False, 'undo must always work');
+            Break;
+          end;
+        G.GetState(Mid);
+        Check((Mid.Recycled = 0) and (Length(Mid.Stock) = StockStart) and (Length(Mid.Waste) = 0) and (G.CardsLeft = PyramidSize),
+          'undone all the way: the deal again');
+      end;
     end;
   finally
     G.Free;
@@ -514,14 +637,16 @@ begin
     Check(not G2.SetState(Bad), 'two equal cards are refused');
     Bad := A; SetLength(Bad.Stock, Length(Bad.Stock) - 1);
     Check(not G2.SetState(Bad), 'a missing card is refused');
-    Bad := A; Bad.Recycled := 1;
-    Check(not G2.SetState(Bad), 'a turn-over that never happened is refused');
+    Bad := A; Bad.Recycled := Bad.MaxRecycles + 1;
+    Check(not G2.SetState(Bad), 'more turn-overs than are allowed is refused');
     Bad := A; Bad.MaxRecycles := -1;
     Check(not G2.SetState(Bad), 'a negative limit is refused');
     Bad := A; Bad.Removed[0] := True;
     Check(not G2.SetState(Bad), 'a covered card taken is refused');
-    Bad := A; SetLength(Bad.History, 0);
-    Check(not G2.SetState(Bad), 'a waste with no draws behind it is refused');
+    Bad := A; Bad.WasteGone := 3;
+    Check(not G2.SetState(Bad), 'cards that do not add up to a pack are refused');
+    Bad := A; Bad.Draws := 0;
+    Check(not G2.SetState(Bad), 'fewer draws than the history holds is refused');
     { a removal that is not a pair }
     G.NewShuffled;
     X := 0;
@@ -552,6 +677,9 @@ begin
   TestFindRemoval;
   TestUnderPairs;
   TestUnderHistory;
+  TestChained;
+  TestBitten;
+  TestHunger;
   TestRandomHands;
   TestBadStates;
   if Failures = 0 then WriteLn('ALL PYRAMID TESTS PASSED')

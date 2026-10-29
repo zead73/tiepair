@@ -11,9 +11,19 @@ program tiepairweb;
 
 uses
   JS, Web, SysUtils, Math, Types, Cards, Story, Sound, Storage, Settings, HandFile,
-  GameController, Cosmetics, WebView;
+  GameController, Cosmetics, WebView, VrPanel;
 
 type
+  TVrFrameFn = function(T: Double): Integer of object;
+  TVrTapFn = procedure(X, Y: Double) of object;
+  TVrTableFn = function: TJSArray of object;
+  TVrSlotFn = procedure(Slot: Integer) of object;
+  TVrMarkFn = function(Kind: Integer): TJSObject of object;
+  TVrBackFn = function: TJSObject of object;
+  TVrDebugFn = procedure(const S: string) of object;
+  TVrStyleFn = function: TJSArray of object;
+  TVrBoolFn = procedure(B: Boolean) of object;
+
   TWebApp = class
   private
     FCtl: TGameController;
@@ -32,6 +42,16 @@ type
     FAskingCross: Boolean;
     FAskingDelete: Boolean;
     FShowingRules: Boolean;
+    { VR: the game on a flat panel (see VrPanel); the page's own canvas is not drawn then }
+    FVr: Boolean;                          { a VR session is running }
+    FVrDirty: Boolean;                     { the panel needs repainting }
+    FVrExit: Boolean;                      { the player pressed Exit VR }
+    FVrWasTable: Boolean;                  { the cards were shown as a 3D table at the last frame }
+    FVrLast: Double;
+    FVrCanvas: TJSHTMLCanvasElement;
+    FVrCtx: TJSCanvasRenderingContext2D;
+    FVrView: TWebView;
+    FVrPanel: TVrPanel;
     function El(const Id: string): TJSElement;
     procedure SetText(const Id, Value: string);
     procedure SetOn(const Id: string; AOn: Boolean);
@@ -59,6 +79,21 @@ type
     function OnInitialsSkip(Event: TEventListenerEvent): Boolean;
     procedure AnswerInitials(AOk: Boolean);
     procedure FinishInitials(const S: string);
+    procedure VrEnter;
+    procedure VrExit;
+    function VrFrame(T: Double): Integer;
+    procedure VrTap(X, Y: Double);
+    function VrTable: TJSArray;
+    procedure VrTapSlot(Slot: Integer);
+    function VrMark(Kind: Integer): TJSObject;
+    function VrBack: TJSObject;
+    procedure VrDebug(const S: string);
+    function VrStyle: TJSArray;
+    procedure VrSetCheats(B: Boolean);
+    procedure VrButton(Id: Integer);
+    procedure VrAnswer(K: TVrDialog; Choice: Integer; const Text: string);
+    procedure VrInvalidate;
+    procedure InstallVrBridge;
     function OnCrossKeep(Event: TEventListenerEvent): Boolean;
     function OnCrossPlay(Event: TEventListenerEvent): Boolean;
     procedure AnswerCross(APlayIt: Boolean);
@@ -179,6 +214,9 @@ begin
   if U.ShowRules and not FShowingRules then
   begin
     FShowingRules := True;
+    if FVr then
+      FVrPanel.OpenDialog(vdRules, '')
+    else
     begin
       FillRules;
       Show('dlgRules', True);
@@ -193,6 +231,9 @@ begin
   if U.AskDelete and not FAskingDelete then
   begin
     FAskingDelete := True;
+    if FVr then
+      FVrPanel.OpenDialog(vdDelete, U.DeletePrompt)
+    else
     begin
       SetText('deletePrompt', U.DeletePrompt);
       Show('dlgDelete', True);
@@ -205,6 +246,9 @@ begin
   if U.AskCross and not FAskingCross then
   begin
     FAskingCross := True;
+    if FVr then
+      FVrPanel.OpenDialog(vdCross, U.CrossPrompt)
+    else
     begin
       SetText('crossPrompt', U.CrossPrompt);
       Show('dlgCross', True);
@@ -217,6 +261,9 @@ begin
   if U.AskInitials and not FAskingInitials then
   begin
     FAskingInitials := True;
+    if FVr then
+      FVrPanel.OpenDialog(vdInitials, U.InitialsPrompt, U.InitialsDefault)
+    else
     begin
       SetText('initialsPrompt', U.InitialsPrompt);
       asm
@@ -269,6 +316,11 @@ end;
 
 procedure TWebApp.Invalidate;
 begin
+  if FVr then                              { in VR the session's own frame loop paints }
+  begin
+    FVrDirty := True;
+    Exit;
+  end;
   if FScheduled then Exit;
   FScheduled := True;
   window.requestAnimationFrame(@Frame);
@@ -556,6 +608,197 @@ begin
   Result := True;
 end;
 
+{ ---- VR ---- }
+
+procedure TWebApp.VrInvalidate;
+begin
+  FVrDirty := True;
+end;
+
+{ A VR session began (vr.js asks for this first, then calls VrFrame every frame). }
+procedure TWebApp.VrEnter;
+begin
+  UnlockAudio;
+  FVr := True;
+  FVrDirty := True;
+  FVrExit := False;
+  FVrWasTable := False;
+  FVrLast := 0;
+end;
+
+{ The session ended: a dialog still open on the panel is answered the safe way (keep, cancel,
+  skip) so that nothing is left waiting where the page cannot show it. }
+procedure TWebApp.VrExit;
+var
+  K: TVrDialog;
+begin
+  K := FVrPanel.Dialog;
+  if K <> vdNone then
+  begin
+    FVrPanel.CloseDialog;
+    if K = vdInitials then VrAnswer(K, 1, '') else VrAnswer(K, 0, '');
+  end;
+  FVr := False;
+  FVrExit := False;
+  Invalidate;
+end;
+
+{ One VR frame: lets the game's own time go by, repaints the panel if anything changed.
+  Returns 1 when the panel's picture changed, plus 2 when the player asked to leave. }
+function TWebApp.VrFrame(T: Double): Integer;
+var
+  Delta: Double;
+  Table: Boolean;
+begin
+  Result := 0;
+  if FCtl.NeedsTicks then
+  begin
+    if FVrLast = 0 then Delta := 16 else Delta := T - FVrLast;
+    if Delta > 100 then Delta := 100;
+    FVrLast := T;
+    FCtl.Tick(Round(Delta));
+    FVrDirty := True;
+  end
+  else
+    FVrLast := 0;
+  Table := FVrPanel.TableActive;
+  if Table <> FVrWasTable then
+  begin
+    FVrWasTable := Table;
+    FVrDirty := True;
+  end;
+  if FVrDirty then
+  begin
+    FVrDirty := False;
+    if Table then FVrPanel.PaintHud else FVrPanel.Paint;
+    Result := 1;
+  end;
+  if Table then Result := Result + 4;
+  if FVrExit then Result := Result + 2;
+end;
+
+{ The 3D table's numbers (see TVrPanel.TableSnapshot): nil when the flat panel is shown. }
+function TWebApp.VrTable: TJSArray;
+begin
+  Result := FVrPanel.TableSnapshot;
+end;
+
+procedure TWebApp.VrTapSlot(Slot: Integer);
+begin
+  UnlockAudio;
+  FVrPanel.TapSlot(Slot);
+  FVrDirty := True;
+end;
+
+function TWebApp.VrMark(Kind: Integer): TJSObject;
+begin
+  Result := FVrPanel.MarkCanvas(Kind);
+end;
+
+function TWebApp.VrBack: TJSObject;
+begin
+  Result := FVrView.BackCardCanvas(328, 464);
+end;
+
+procedure TWebApp.VrSetCheats(B: Boolean);
+begin
+  FVrPanel.Cheats := B;
+  FVrDirty := True;
+end;
+
+function TWebApp.VrStyle: TJSArray;
+begin
+  Result := FVrPanel.StyleList;
+end;
+
+procedure TWebApp.VrDebug(const S: string);
+begin
+  if S = FVrPanel.DebugText then Exit;
+  FVrPanel.DebugText := S;
+  FVrDirty := True;
+end;
+
+procedure TWebApp.VrTap(X, Y: Double);
+begin
+  UnlockAudio;
+  FVrPanel.Tap(X, Y);
+  FVrDirty := True;
+end;
+
+procedure TWebApp.VrButton(Id: Integer);
+begin
+  case Id of
+    vbNew: FCtl.ActionNew;
+    vbUndo: if FCtl.GetUi.UndoEnabled then FCtl.ActionUndo;
+    vbStore: FCtl.ActionOpenStore;
+    vbHint: if FCtl.GetUi.HintEnabled then FCtl.ActionHint;
+    vbCards: FCtl.ActionOpenCards;
+    vbMenu: FCtl.ActionOpenMenu;
+    vbStartOver: FVrPanel.OpenDialog(vdOver, '');
+    vbRecords: FCtl.ActionOpenRecords;
+    vbMode: if FCtl.GetUi.EasyEnabled then FCtl.ActionToggleEasy;
+    vbExit: FVrExit := True;
+    vbSkip: FCtl.SkipPressed;
+    vbCancel: FCtl.ActionCancel;
+    vbCheat: FVrPanel.TypeCheat;
+  end;
+  FVrDirty := True;
+end;
+
+procedure TWebApp.VrAnswer(K: TVrDialog; Choice: Integer; const Text: string);
+begin
+  case K of
+    vdCross: AnswerCross(Choice = 1);
+    vdDelete: AnswerDelete(Choice = 1);
+    vdOver:
+      if Choice = 1 then FCtl.ActionRestartCampaign
+      else if Choice = 2 then FCtl.ActionEraseEverything;
+    vdInitials:
+      if Choice = 0 then FinishInitials(Text) else FinishInitials('');
+    vdRules: CloseRules;
+  end;
+  FVrDirty := True;
+end;
+
+{ What vr.js talks to: the panel's canvas, and the few things it asks the game to do. }
+procedure TWebApp.InstallVrBridge;
+var
+  W, H: Integer;
+  D: Double;
+  EnterCb, ExitCb: TVrNotify;
+  FrameCb: TVrFrameFn;
+  TapCb: TVrTapFn;
+  TableCb: TVrTableFn;
+  SlotCb: TVrSlotFn;
+  MarkCb: TVrMarkFn;
+  BackCb: TVrBackFn;
+  DebugCb: TVrDebugFn;
+  StyleCb: TVrStyleFn;
+  CheatsCb: TVrBoolFn;
+begin
+  W := VrW;
+  H := VrH;
+  D := VrDpr;
+  EnterCb := @VrEnter;                    { (named here so that the compiler keeps them) }
+  ExitCb := @VrExit;
+  FrameCb := @VrFrame;
+  TapCb := @VrTap;
+  TableCb := @VrTable;
+  SlotCb := @VrTapSlot;
+  MarkCb := @VrMark;
+  BackCb := @VrBack;
+  DebugCb := @VrDebug;
+  StyleCb := @VrStyle;
+  CheatsCb := @VrSetCheats;
+  asm
+    window.TCVR = {
+      canvas: this.FVrCanvas, width: W, height: H, dpr: D, barHeight: 84,
+      enter: EnterCb, exit: ExitCb, frame: FrameCb, tap: TapCb,
+      table: TableCb, tapSlot: SlotCb, mark: MarkCb, back: BackCb, debug: DebugCb, style: StyleCb, setCheats: CheatsCb
+    };
+  end;
+end;
+
 function TWebApp.OnEraseAll(Event: TEventListenerEvent): Boolean;
 begin
   Show('dlgOver', False);
@@ -598,6 +841,16 @@ begin
   FCtl.OnChange := @Changed;
   FView := TWebView.Create(FCtx, FCtl);
   FView.TouchScreen := IsTouchScreen;
+  FVrCanvas := TJSHTMLCanvasElement(document.createElement('canvas'));
+  FVrCanvas.width := Round(VrW * VrDpr);
+  FVrCanvas.height := Round(VrH * VrDpr);
+  FVrCtx := FVrCanvas.getContextAs2DContext('2d');
+  FVrView := TWebView.Create(FVrCtx, FCtl);
+  FVrView.TouchScreen := True;
+  FVrPanel := TVrPanel.Create(FCtl, FVrView, FVrCtx);
+  FVrPanel.OnButton := @VrButton;
+  FVrPanel.OnAnswer := @VrAnswer;
+  FVrPanel.OnInvalidate := @VrInvalidate;
   FitCanvas;
   FCtl.SetViewport(FW, FH);
 
@@ -627,6 +880,7 @@ begin
   Listen('btnRestartCampaign', 'click', @OnRestartCampaign);
   Listen('btnOverCancel', 'click', @OnOverCancel);
 
+  InstallVrBridge;                        { vr.js (the "Enter VR" button) finds the game here }
   GluePersist;                            { ask the browser not to clear our saves }
   Show('loading', False);
   FCtl.StartWithMenu;                     { the start menu first (a web page cannot quit) }

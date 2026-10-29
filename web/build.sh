@@ -14,7 +14,23 @@ D=web/dist
 rm -rf "$D"
 mkdir -p "$D/assets/cards" "$D/assets/vampires" "$D/assets/win" "$D/assets/shopkeeper" "$D/assets/specials" "$D/assets/house" "$D/icons"
 "$P" -Tbrowser -Jc -Fusrc -Fuweb/src -FE"$D" -Jirtl.js web/src/tiepairweb.pas
-cp web/index.html web/glue.js web/manifest.webmanifest "$D/"
+cp web/index.html web/glue.js web/vr.js web/vr-main.js web/vr-table.js web/vr-room.js web/manifest.webmanifest "$D/"
+# the VR files are loaded with ?v=<a fingerprint of them>, so that a browser which kept an old copy
+# (the Quest's does) fetches the new one; the same fingerprint is shown in the toolbar
+python3 - <<'PY'
+import hashlib
+names = ['web/vr.js', 'web/vr-main.js', 'web/vr-table.js', 'web/vr-room.js', 'web/vendor/three.module.min.js']
+h = hashlib.sha256()
+for n in names:
+    h.update(open(n, 'rb').read())
+build = h.hexdigest()[:8]
+for n in ['web/dist/vr.js', 'web/dist/vr-main.js', 'web/dist/vr-table.js', 'web/dist/vr-room.js', 'web/dist/index.html']:
+    t = open(n, encoding='utf-8').read().replace('__BUILD__', build)
+    open(n, 'w', encoding='utf-8').write(t)
+print('vr build', build)
+PY
+mkdir -p "$D/vendor"
+cp web/vendor/three.module.min.js web/vendor/three.LICENSE "$D/vendor/"
 cp assets/cards/*.png "$D/assets/cards/"
 cp assets/vampires/*.png "$D/assets/vampires/"
 cp assets/win/win_screen.png "$D/assets/win/"

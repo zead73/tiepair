@@ -3,6 +3,26 @@
 What changed in each version. The newest is on top. The version number lives in
 `src/version.pas` and is changed with `tools/set-version.sh`.
 
+## 0.6.0 - 2026-10-29
+
+VR for the Meta Quest, as in Tiecards 0.10.0. In the web version, on a browser that can do
+WebXR (the Quest's own browser; the page must be https or localhost) an **Enter VR** button
+appears in the toolbar.
+
+- The pyramid is a 3D board of real cards on a tilted felt table in a gothic parlour (fireplace,
+  the three vampire portraits, a window with your Style moon, candles), with the toolbar and the
+  duel panel as floating signs. Point a controller's laser at a card and pull the trigger, like a
+  click: a Wild card, a hint, the card you picked (lifted and glowing), cards that cannot be taken
+  yet (dimmed), the stock and the waste all work, and Seer's eye fans the next three stock cards
+  beside the waste.
+- Everything else (the menu, the Store, the story, the dialogs, the win picture) is the whole game on
+  one flat panel in front of you. The toolbar has a Mode button for Normal / Easy in Free Play.
+- The VR code is loaded only when it is used (`vr.js` is tiny; `vr-main.js`, `vr-table.js`,
+  `vr-room.js` and three.js in `web/vendor/` come on demand). `?vrpreview` shows the VR scene in an
+  ordinary window (mouse as the pointer; A/D turn, W/S tilt) and `?vrdebug` adds a frame-rate line and
+  a "+900 coins" test button on the menu.
+- Not tried on a real headset yet; only the preview window.
+
 ## 0.5.1 - 2026-10-29
 
 - Space and Enter move the story on, like a click (they also turn the pages of Fenwick's

@@ -70,6 +70,16 @@ the killer, since every extra draw feeds him more of the stock. His hands are al
 without the Spoon or the Easy rule, so the ramp is a starting point and the
 user's call.
 
+## VR (Meta Quest)
+
+The web version has a VR mode, like Tiecards': on a browser that can do WebXR (the Quest's own browser, over
+https or on localhost) an **Enter VR** button appears in the toolbar. The pyramid becomes a 3D board of real cards
+on a tilted felt table in a gothic parlour; the toolbar and the duel panel float around it, and the laser pointer
+of either controller taps a card. The menu, Store, story and dialogs are drawn on one flat panel in front of you.
+The code is `web/vr.js` (loader), `web/vr-main.js`, `web/vr-table.js`, `web/vr-room.js`, `web/src/vrpanel.pas` and
+three.js in `web/vendor/`. Add `?vrpreview` to the page address to see it in an ordinary window (mouse as the
+pointer; A/D turn, W/S tilt), and `?vrdebug` for a frame-rate line and a "+900 coins" test button on the menu.
+
 ## Building and testing
 
 The rules and the game flow have no window code, so the tests are plain console programs:

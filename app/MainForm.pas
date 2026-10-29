@@ -288,6 +288,13 @@ end;
 
 procedure TfrmMain.FormKeyDown(Sender: TObject; var Key: Word; Shift: TShiftState);
 begin
+  { Space and Enter move the story on; the button that has the focus must not press as well }
+  if ((Key = VK_SPACE) or (Key = VK_RETURN)) and FCtl.KeyAdvances then
+  begin
+    FCtl.KeyPress(False);
+    Key := 0;
+    Exit;
+  end;
   FCtl.KeyPress(Key = VK_ESCAPE);
 end;
 

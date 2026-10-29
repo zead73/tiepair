@@ -310,6 +310,9 @@ type
     { ---- what the player does ---- }
     procedure Tap(X, Y: Integer);              { a click or a finger on the table }
     procedure KeyPress(IsEscape: Boolean);     { any key; Escape skips a whole scene }
+    { Would a key press now move on a story line, skip a deal or turn a page of Fenwick's
+      introduction? The front end then keeps Space and Enter from also pressing a focused button. }
+    function KeyAdvances: Boolean;
     procedure SkipPressed;                     { an on-screen "skip" control }
     procedure ActionNew;
     procedure ActionUndo;
@@ -1670,6 +1673,13 @@ begin
   end
   else
     SkipDeal;                              { any key skips the deal }
+end;
+
+function TGameController.KeyAdvances: Boolean;
+begin
+  if FRulesShow or (FDeleteAsk >= 0) or FMenuOpen or (FCrossAsk >= 0) then Exit(False);
+  if FOverlay <> okNone then Exit(IntroActive);
+  Result := not FTargeting and Animating;
 end;
 
 procedure TGameController.SkipPressed;

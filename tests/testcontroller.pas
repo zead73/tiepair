@@ -2132,6 +2132,42 @@ begin
   end;
 end;
 
+{ Space and Enter move the story on: the controller says when a key would do that, so that the
+  front end keeps them from also pressing a button. }
+procedure TestKeyAdvances;
+var
+  St: TStory;
+  C: TGameController;
+  D: TDecks;
+  W: TWatcher;
+begin
+  WipeStore;
+  St := TStory.Create;
+  St.LoadFromFile(StoryPath);
+  D := TDecks.Create;
+  W := TWatcher.Create;
+  C := NewCtl(St, D, W);
+  try
+    C.Start;
+    Check(C.KeyAdvances, 'the deal can be skipped with a key');
+    RunOut(C);
+    Check(not C.KeyAdvances, 'at the table a key does nothing');
+    C.ActionToggleMode;                      { the campaign opens with its story }
+    Check(C.InScene and C.KeyAdvances, 'in the story a key moves on');
+    C.ActionOpenMenu;
+    Check(not C.KeyAdvances, 'not while the menu is up');
+    C.KeyPress(True);
+    ClickThrough(C);
+    RunOut(C);
+    Check(not C.KeyAdvances, 'the story is over');
+    C.ActionOpenStore;
+    Check(C.Overlay = okStore, 'the Store opens');
+    Check(C.KeyAdvances, 'and Fenwick''s introduction turns a page on a key');
+  finally
+    C.Free; W.Free; D.Free; St.Free;
+  end;
+end;
+
 begin
   CrossCardsOn := False;                  { where the silver cross lies is random: it has its own tests }
   Randomize;
@@ -2162,6 +2198,7 @@ begin
   TestCampaignTrophies;
   TestBiteStatus;
   TestPrices;
+  TestKeyAdvances;
   WipeStore;
   if Failures = 0 then WriteLn('ALL CONTROLLER TESTS PASSED') else
   begin

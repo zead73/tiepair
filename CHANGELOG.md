@@ -3,6 +3,12 @@
 What changed in each version. The newest is on top. The version number lives in
 `src/version.pas` and is changed with `tools/set-version.sh`.
 
+## 0.5.1 - 2026-10-29
+
+- Space and Enter move the story on, like a click (they also turn the pages of Fenwick's
+  introduction and skip the deal). Before, on the desktop they pressed whichever toolbar button
+  had the focus (the Menu button, usually), and in the browser they could do the same.
+
 ## 0.5.0 - 2026-10-24
 
 The desktop versions: Tiepair now runs as a program on Linux (Qt5) and Windows (64-bit), built

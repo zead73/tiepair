@@ -343,6 +343,16 @@ begin
     Result := True;
     Exit;
   end;
+  if ((string(TJSObject(Event)['key']) = ' ') or (string(TJSObject(Event)['key']) = 'Enter')) and FCtl.KeyAdvances then
+  begin
+    Event.preventDefault;                  { Space and Enter move the story on, and press no button as well }
+    asm
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    end;
+    FCtl.KeyPress(False);
+    Result := False;
+    Exit;
+  end;
   FCtl.KeyPress(string(TJSObject(Event)['key']) = 'Escape');
   if FCtl.MenuOpen and (Length(string(TJSObject(Event)['key'])) = 1) then
     FCtl.TypeChar(string(TJSObject(Event)['key'])[1]);        { the menu's hidden cheat word }

@@ -1,6 +1,6 @@
 # Tiepair
 
-A gothic Pyramid solitaire, in the style of [Tiecards](../tiecards): the same card art and the same
+A gothic Pyramid solitaire, in the style of [Tiecards](https://github.com/zead73/tiecards): the same card art and the same
 vampires, now cursing a new set of cards. Free Play, and a Campaign against three vampires with the
 Store, special cards, relics, trophies, Style, records and save slots. Playable
 as a program for Linux and Windows and in the browser (the version is in `src/version.pas`).
@@ -100,17 +100,6 @@ Saved games live in the user's config folder under `tiepair` (`~/.config/tiepair
 **Web.** `web/build.sh` builds the browser version into `web/dist/` (it needs pas2js 3.x as described in the
 Tiecards README; try it with `cd web/dist && python3 -m http.server 8767`). Saved hands there live under a
 `tiepair` key prefix, separate from Tiecards.
-
-## Homepage
-
-`site/` is a one-page homepage for the game (plain HTML and CSS, no scripts, with its own pictures in `site/img/`),
-in the style of Tiecards'. To publish it, copy the contents of `site/` to a folder on a web server and put the web
-build (the contents of `web/dist/`) in a `play/` folder inside it, which is where the "Play" buttons point.
-`tools/publish-local.sh [folder]` does both (the default folder is `~/html/tiepair`). `site/sw.js` is only there to
-retire the service worker that the game used to register at that address, before the game moved to `play/`. The
-pictures come from the game's own assets (`tools/make_site_images.py`) and from screenshots of the running game
-(`site/img/shot-*.png`, taken at 1100 px wide). The download buttons for Linux and Windows are placeholders until
-there are releases to link to. The version in the page's footer is written by hand.
 
 ## Layout
 

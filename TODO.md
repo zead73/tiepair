@@ -2,6 +2,8 @@
 
 ## Done
 - [x] 0.1.0 – 0.3.1: Pyramid rules, tests, the saved hand, the web front end, Normal and Easy modes.
+- [x] Hosting: the game and its homepage are on the VPS at https://tiestudio.ca/tiepair/ (the game in play/), with a Let's Encrypt
+      certificate that Caddy renews by itself; www.tiestudio.ca redirects to it. Working (2026-11-13). The repository stays private on GitHub.
 - [x] 0.6.0: VR mode for the Quest (3D pyramid in a parlour), tried in the preview window only.
 - [x] 0.5.0: the desktop versions for Linux (Qt5) and Windows (cross-compiled, tried under Wine).
 - [x] 0.4.0: the campaign (three vampires and their tricks), Fenwick's Store, six special cards, relics,
@@ -20,7 +22,6 @@
 - [ ] **Play-testing** of the special cards (the Wild card's two taps, Seer's eye) and the relics on a real
       phone and iPad (none of it has been tried on a touch screen yet), and of the Windows exe on a real Windows PC
       (only Wine so far).
-- [ ] Hosting: nothing is published (the repository is private on GitHub).
 
 ## Known gaps
 - The solver (`tools/pair-perfect.pas`) cannot prove every hand either way: it gives up on some (reported as unknown).

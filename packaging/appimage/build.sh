@@ -38,6 +38,9 @@ is_host() {
     ld-linux*|linux-vdso*) return 0 ;;
     libGL.so.*|libGLX.so.*|libGLdispatch.so.*|libEGL.so.*|libOpenGL.so.*|libgbm.so.*|libdrm.so.*) return 0 ;;
     libfontconfig.so.*|libfreetype.so.*|libexpat.so.*) return 0 ;;
+    # the C++ runtime of Debian 12 needs glibc 2.36, which Ubuntu 22.04 (2.35) does not have; every system that
+    # can run this AppImage has a libstdc++ and libgcc_s at least as new as the ones Qt 5 here was built with (GCC 12)
+    libstdc++.so.*|libgcc_s.so.*) return 0 ;;
   esac
   return 1
 }

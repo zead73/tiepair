@@ -3,6 +3,18 @@
 What changed in each version. The newest is on top. The version number lives in
 `src/version.pas` and is changed with `tools/set-version.sh`.
 
+## 0.6.1 - 2026-11-13
+
+Setup files for Linux and Windows, and the first GitHub release.
+
+- **Linux AppImage** (`./build-appimage.sh`, needs docker): one file that runs on Debian 12 /
+  Ubuntu 22.04 and newer with no Qt installed. It is compiled in a Debian 12 container
+  (`packaging/appimage/`) and carries the Qt5 libraries it needs.
+- **Windows setup** (`packaging/make-installer.sh`, needs NSIS): a per-user installer (no
+  administrator needed) with a start menu entry, an optional desktop shortcut and an uninstaller.
+  Saved games are kept when you uninstall.
+- The game itself is unchanged from 0.6.0.
+
 ## 0.6.0 - 2026-10-29
 
 VR for the Meta Quest, as in Tiecards 0.10.0. In the web version, on a browser that can do

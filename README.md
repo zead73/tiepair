@@ -5,6 +5,20 @@ vampires, now cursing a new set of cards. Free Play, and a Campaign against thre
 Store, special cards, relics, trophies, Style, records and save slots. Playable
 as a program for Linux and Windows and in the browser (the version is in `src/version.pas`).
 
+## Download
+
+Free to play. The [Releases page](https://github.com/zead73/tiepair/releases) has:
+
+- **Linux:** `tiepair-<version>-x86_64.AppImage`, one file that needs no installation and no Qt: make it
+  executable (`chmod +x tiepair-*.AppImage`) and run it. It works on Debian 12 / Ubuntu 22.04 and newer.
+- **Windows:** `tiepair-<version>-setup.exe`, a per-user setup (no administrator needed) with a start menu
+  entry, an optional desktop shortcut and an uninstaller; or `tiepair-<version>-windows-x64.zip`, just
+  `tiepair.exe` to run from anywhere. The program is not code-signed, so Windows SmartScreen may show a
+  warning the first time ("More info", then "Run anyway").
+- **In a browser:** <https://tiestudio.ca/tiepair/play/> (also on a phone or tablet, and in VR on a Meta Quest).
+
+Check a download against `SHA256SUMS` on the same page.
+
 ## How it plays
 
 Twenty-eight cards are dealt face up in a pyramid of seven rows; the other twenty-four are the
@@ -96,6 +110,10 @@ cross-compiles `build/tiepair.exe` (64-bit; it needs Lazarus and the stock Arch 
 writable copy of Lazarus in `~/.local/share/tiecards-cross` on its first run, shared with Tiecards).
 Both run `make-resources.sh` first, which packs the pictures and the story into `app/cards.res`.
 Saved games live in the user's config folder under `tiepair` (`~/.config/tiepair`, `%LOCALAPPDATA%\tiepair`).
+
+**Releases.** `./build-appimage.sh` makes `dist/tiepair-<version>-x86_64.AppImage`: it compiles the Qt5 program in a
+Debian 12 container (`packaging/appimage/`, needs docker) and bundles Qt5 and its libraries. `packaging/make-installer.sh`
+makes `dist/tiepair-<version>-setup.exe` with NSIS (`makensis`). `dist/` is not committed.
 
 **Web.** `web/build.sh` builds the browser version into `web/dist/` (it needs pas2js 3.x as described in the
 Tiecards README; try it with `cd web/dist && python3 -m http.server 8767`). Saved hands there live under a

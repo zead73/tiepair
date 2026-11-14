@@ -16,3 +16,4 @@ __pycache__/
 *~
 # the homepage lives outside this repository (../tiepair-site); never commit one here
 site/
+dist/

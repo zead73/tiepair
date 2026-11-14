@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Tiepair
+GenericName=Pyramid solitaire
+Comment=A gothic Pyramid solitaire: take away Kings and pairs that add up to 13, against three vampires
+Exec=tiepair
+Icon=tiepair
+Terminal=false
+Categories=Game;CardGame;
+Keywords=solitaire;pyramid;cards;vampires;
+StartupWMClass=tiepair

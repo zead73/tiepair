@@ -4,6 +4,7 @@
 - [x] 0.1.0 – 0.3.1: Pyramid rules, tests, the saved hand, the web front end, Normal and Easy modes.
 - [x] Hosting: the game is on the VPS at https://tiestudio.ca/tiepair/play/, with a Let's Encrypt certificate that Caddy renews
       by itself; www.tiestudio.ca redirects to it. Working (2026-11-13). The homepage is kept outside this repository.
+- [x] 0.6.1: a Linux AppImage, a Windows setup and zip, and the first GitHub release.
 - [x] 0.6.0: VR mode for the Quest (3D pyramid in a parlour), tried in the preview window only.
 - [x] 0.5.0: the desktop versions for Linux (Qt5) and Windows (cross-compiled, tried under Wine).
 - [x] 0.4.0: the campaign (three vampires and their tricks), Fenwick's Store, six special cards, relics,

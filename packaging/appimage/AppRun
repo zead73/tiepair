@@ -1,0 +1,11 @@
+#!/bin/sh
+# AppImage entry point: let the program find the bundled Qt5 libraries and plugins, and run it.
+HERE="$(dirname "$(readlink -f "$0")")"
+export LD_LIBRARY_PATH="$HERE/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export QT_PLUGIN_PATH="$HERE/usr/plugins"
+export QT_QPA_PLATFORM_PLUGIN_PATH="$HERE/usr/plugins/platforms"
+# the xcb plugin is the one that is bundled (it also runs under Wayland, through XWayland)
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+# no OpenGL is used, so Qt's complaints about a missing GLX configuration are of no use to anybody
+export QT_LOGGING_RULES="qt.glx=false${QT_LOGGING_RULES:+;$QT_LOGGING_RULES}"
+exec "$HERE/usr/bin/tiepair" "$@"
